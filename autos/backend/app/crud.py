@@ -5,9 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 from fastapi import HTTPException, status
 
-# CREATE
 def crear_vehiculo(db: Session, vehiculo: schemas.VehiculoCreate):
-    # Validaciones a nivel aplicación
     if vehiculo.anio < 1900 or vehiculo.anio > datetime.now().year + 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -20,7 +18,6 @@ def crear_vehiculo(db: Session, vehiculo: schemas.VehiculoCreate):
             detail="El precio debe ser mayor a 0"
         )
     
-    # Verificar existencia de marca y vendedor
     if not db.query(models.Marca).filter(models.Marca.id == vehiculo.marca_id).first():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -33,10 +30,8 @@ def crear_vehiculo(db: Session, vehiculo: schemas.VehiculoCreate):
             detail="El vendedor especificado no existe"
         )
     
-    # Crear vehículo
     db_vehiculo = models.Vehiculo(**vehiculo.dict(exclude={"categorias"}))
     
-    # Asociar categorías con validación
     if vehiculo.categorias:
         categorias_existentes = db.query(models.Categoria).filter(
             models.Categoria.id.in_(vehiculo.categorias)
@@ -57,11 +52,9 @@ def crear_vehiculo(db: Session, vehiculo: schemas.VehiculoCreate):
     db.refresh(db_vehiculo)
     return db_vehiculo
 
-# READ (Todos los vehículos)
 def obtener_vehiculos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Vehiculo).offset(skip).limit(limit).all()
 
-# READ (Vehículo por ID)
 def obtener_vehiculo(db: Session, vehiculo_id: int):
     vehiculo = db.query(models.Vehiculo).filter(models.Vehiculo.id == vehiculo_id).first()
     if not vehiculo:
@@ -71,7 +64,6 @@ def obtener_vehiculo(db: Session, vehiculo_id: int):
         )
     return vehiculo
 
-# UPDATE
 def actualizar_vehiculo(
     db: Session, 
     vehiculo_id: int, 
@@ -79,7 +71,6 @@ def actualizar_vehiculo(
 ):
     db_vehiculo = obtener_vehiculo(db, vehiculo_id)
     
-    # Validar marca si se actualiza
     if vehiculo.marca_id != db_vehiculo.marca_id:
         if not db.query(models.Marca).filter(models.Marca.id == vehiculo.marca_id).first():
             raise HTTPException(
@@ -87,7 +78,6 @@ def actualizar_vehiculo(
                 detail="La nueva marca especificada no existe"
             )
     
-    # Validar vendedor si se actualiza
     if vehiculo.vendedor_id != db_vehiculo.vendedor_id:
         if not db.query(models.Usuario).filter(models.Usuario.id == vehiculo.vendedor_id).first():
             raise HTTPException(
@@ -95,11 +85,9 @@ def actualizar_vehiculo(
                 detail="El nuevo vendedor especificado no existe"
             )
     
-    # Actualizar campos simples
     for key, value in vehiculo.dict(exclude={"categorias"}).items():
         setattr(db_vehiculo, key, value)
     
-    # Actualizar categorías si se proporcionan
     if vehiculo.categorias is not None:
         categorias_existentes = db.query(models.Categoria).filter(
             models.Categoria.id.in_(vehiculo.categorias)
@@ -119,14 +107,12 @@ def actualizar_vehiculo(
     db.refresh(db_vehiculo)
     return db_vehiculo
 
-# DELETE
 def eliminar_vehiculo(db: Session, vehiculo_id: int):
     db_vehiculo = obtener_vehiculo(db, vehiculo_id)
     db.delete(db_vehiculo)
     db.commit()
     return {"ok": True}
 
-# Funciones adicionales para relaciones
 def agregar_categoria_a_vehiculo(db: Session, vehiculo_id: int, categoria_id: int):
     vehiculo = obtener_vehiculo(db, vehiculo_id)
     categoria = db.query(models.Categoria).filter(models.Categoria.id == categoria_id).first()
@@ -167,32 +153,7 @@ def remover_categoria_de_vehiculo(db: Session, vehiculo_id: int, categoria_id: i
     db.commit()
     return vehiculo
 
-# Función actualizada para obtener vehículos desde la vista SQL
 def obtener_vehiculos_desde_vista(db: Session, skip: int = 0, limit: int = 100):
-    # Usamos text() para ejecutar SQL directo y mapeamos al schema VehiculoVista
-    query = text("""
-        SELECT * FROM vista_vehiculos
-        ORDER BY id
-        OFFSET :skip LIMIT :limit
-    """)
-    
-    result = db.execute(query, {"skip": skip, "limit": limit})
-    
-    # Mapeamos los resultados al schema Pydantic
-    vehiculos = []
-    for row in result:
-        vehiculos.append(schemas.VehiculoVista(
-            id=row.id,
-            modelo=row.modelo,
-            anio=row.anio,
-            precio=row.precio,
-            tipo=row.tipo,
-            descripcion=row.descripcion,
-            marca=row.marca,
-            vendedor=row.vendedor,
-            disponible=row.disponible,
-            fecha_publicacion=row.fecha_publicacion,
-            categorias=row.categorias
-        ))
-    
-    return vehiculos
+    stmt = text("SELECT * FROM vista_vehiculos ORDER BY id OFFSET :skip LIMIT :limit")
+    result = db.execute(stmt, {"skip": skip, "limit": limit})
+    return [dict(row) for row in result.mappings()]
