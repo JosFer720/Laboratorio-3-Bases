@@ -44,6 +44,7 @@ class Vehiculo(Base):
     vendedor_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     disponible = Column(Boolean, default=True)
     fecha_publicacion = Column(DateTime, default=datetime.utcnow)
+
     categorias = relationship("Categoria", secondary=vehiculo_categoria, back_populates="vehiculos")
 
 class Categoria(Base):
@@ -51,4 +52,5 @@ class Categoria(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(50), unique=True, nullable=False)
+
     vehiculos = relationship("Vehiculo", secondary=vehiculo_categoria, back_populates="categorias")

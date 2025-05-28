@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 from datetime import datetime
+from decimal import Decimal
 
 class CategoriaBase(BaseModel):
     nombre: str
@@ -12,7 +13,7 @@ class Categoria(CategoriaBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
 
 class VehiculoBase(BaseModel):
     marca_id: int
@@ -20,7 +21,7 @@ class VehiculoBase(BaseModel):
     anio: int
     tipo: Optional[str]
     descripcion: Optional[str]
-    precio: float = Field(max_digits=10, decimal_places=2)
+    precio: Decimal = Field(..., max_digits=10, decimal_places=2) 
     vendedor_id: int
     disponible: Optional[bool] = True
 
@@ -33,4 +34,20 @@ class Vehiculo(VehiculoBase):
     categorias: List[Categoria] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
+
+class VehiculoVista(BaseModel):
+    id: int
+    modelo: str
+    anio: int
+    precio: Decimal
+    tipo: Optional[str]
+    descripcion: Optional[str]
+    marca: str
+    vendedor: str
+    disponible: bool
+    fecha_publicacion: datetime
+    categorias: Optional[str]
+
+    class Config:
+        from_attributes = True
