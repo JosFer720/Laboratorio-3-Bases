@@ -67,11 +67,16 @@ const VehiculosPage = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <VehiculoForm
-        onSubmit={vehiculoEdit ? actualizarVehiculo : crearVehiculo}
-        vehiculoEdit={vehiculoEdit}
-        clearEdit={() => setVehiculoEdit(null)}
-      />
+      {!vehiculoEdit || vehiculoEdit.id ? (
+        <VehiculoForm
+          onSubmit={vehiculoEdit ? actualizarVehiculo : crearVehiculo}
+          vehiculoEdit={vehiculoEdit}
+          clearEdit={() => setVehiculoEdit(null)}
+        />
+      ) : (
+        <p className="text-gray-500 mb-4">Cargando datos del vehículo para editar...</p>
+      )}
+
       <VehiculoList
         vehiculos={vehiculos}
         onDelete={eliminarVehiculo}
