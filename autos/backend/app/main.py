@@ -11,23 +11,23 @@ def init_db():
     logger.info("Inicializando base de datos...")
     try:
         create_tables()
-        logger.info("✅ Tablas creadas")
+        logger.info("Tablas creadas")
         insert_initial_data()
-        logger.info("✅ Datos insertados")
+        logger.info("Datos insertados")
         create_views_and_constraints()
-        logger.info("✅ Vistas y restricciones creadas")
+        logger.info("Vistas y restricciones creadas")
     except Exception as e:
-        logger.error(f"❌ Error al inicializar la base de datos: {e}")
+        logger.error(f"Error al inicializar la base de datos: {e}")
         raise
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🟡 Entrando a lifespan")
+    print("Entrando a lifespan")
     init_db()
-    print("🟢 Base de datos lista")
+    print("Base de datos lista")
     yield
-    print("🔴 Cerrando app")
+    print("Cerrando app")
 
 
 app = FastAPI(lifespan=lifespan)
