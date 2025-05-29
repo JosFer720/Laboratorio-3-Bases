@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 def create_views_and_constraints():
     try:
         with engine.connect() as conn:
-            # Check if view exists first
             view_exists = conn.execute(text("""
                 SELECT EXISTS (
                     SELECT 1 FROM pg_views 
@@ -41,7 +40,6 @@ def create_views_and_constraints():
                 conn.commit()
                 logger.info("View created successfully")
 
-            # Constraints también deben ir dentro del bloque
             conn.execute(text("""
                 DO $$
                 BEGIN
