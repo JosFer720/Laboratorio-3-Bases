@@ -154,6 +154,11 @@ def remover_categoria_de_vehiculo(db: Session, vehiculo_id: int, categoria_id: i
     return vehiculo
 
 def obtener_vehiculos_desde_vista(db: Session, skip: int = 0, limit: int = 100):
-    stmt = text("SELECT * FROM vista_vehiculos ORDER BY id OFFSET :skip LIMIT :limit")
-    result = db.execute(stmt, {"skip": skip, "limit": limit})
-    return [dict(row) for row in result.mappings()]
+    try:
+        stmt = text("SELECT * FROM vista_vehiculos ORDER BY id OFFSET :skip LIMIT :limit")
+        result = db.execute(stmt, {"skip": skip, "limit": limit})
+        return [dict(row) for row in result.mappings()]
+    except Exception as e:
+        # Fallback to regular query if view doesn't exist
+        logger.error(f"Error querying vista_vehiculos: {str(e)}")
+        return obtener_vehiculos(db, skip, limit)

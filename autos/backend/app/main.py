@@ -1,34 +1,38 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import logging
-
 from app.seed import create_tables, insert_initial_data
 from app.init_scripts import create_views_and_constraints
+from app.wait_for_db import wait_for_db
 
 logger = logging.getLogger(__name__)
 
 def init_db():
-    logger.info("Inicializando base de datos...")
     try:
+        logger.info("Waiting for database to be ready...")
+        wait_for_db()
+        
+        logger.info("Creating tables...")
         create_tables()
-        logger.info("Tablas creadas")
+        
+        logger.info("Inserting initial data...")
         insert_initial_data()
-        logger.info("Datos insertados")
+        
+        logger.info("Creating views and constraints...")
         create_views_and_constraints()
-        logger.info("Vistas y restricciones creadas")
+        
+        logger.info("Database initialization complete")
     except Exception as e:
-        logger.error(f"Error al inicializar la base de datos: {e}")
+        logger.error(f"Database initialization failed: {str(e)}")
         raise
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Entrando a lifespan")
+    logger.info("Starting application lifespan")
     init_db()
-    print("Base de datos lista")
+    logger.info("Application startup complete")
     yield
-    print("Cerrando app")
-
+    logger.info("Application shutdown")
 
 app = FastAPI(lifespan=lifespan)
 
