@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from app import schemas, crud
+from app import schemas, crud, models
 from app.database import get_db
 
 router = APIRouter(prefix="/api/vehiculos", tags=["vehiculos"])
@@ -13,6 +13,21 @@ def crear_vehiculo(vehiculo: schemas.VehiculoCreate, db: Session = Depends(get_d
 @router.get("/", response_model=List[schemas.VehiculoVista])
 def listar_vehiculos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.obtener_vehiculos_desde_vista(db, skip=skip, limit=limit)
+
+@router.get("/marcas")
+def obtener_marcas(db: Session = Depends(get_db)):
+    return db.query(models.Marca).all()
+
+@router.get("/usuarios", response_model=List[schemas.UsuarioPublico])
+def obtener_usuarios(vendedores: bool = False, db: Session = Depends(get_db)):
+    query = db.query(models.Usuario)
+    if vendedores:
+        query = query.filter(models.Usuario.rol_id == 2)
+    return query.all()
+
+@router.get("/categorias")
+def obtener_categorias(db: Session = Depends(get_db)):
+    return db.query(models.Categoria).all()
 
 @router.get("/{vehiculo_id}", response_model=schemas.Vehiculo)
 def obtener_vehiculo(vehiculo_id: int, db: Session = Depends(get_db)):

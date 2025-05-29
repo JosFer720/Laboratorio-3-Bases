@@ -51,3 +51,7 @@ class VehiculoVista(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UsuarioPublico(BaseModel):
+    id: int
+    nombre: str

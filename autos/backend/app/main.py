@@ -4,6 +4,8 @@ import logging
 from app.seed import create_tables, insert_initial_data
 from app.init_scripts import create_views_and_constraints
 from app.wait_for_db import wait_for_db
+from app.routers import vehiculos
+
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +49,13 @@ app.add_middleware(
 )
 
 
-from app.routers import vehiculos
 app.include_router(vehiculos.router)
 
 @app.get("/")
 def read_root():
     return {"message": "Bienvenido a la API de Autos"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
