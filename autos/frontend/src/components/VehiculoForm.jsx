@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import styles from './VehiculoForm.module.css';
 
 const initialForm = {
-  id: null, // para edición, null si es nuevo
+  id: null,
   marca_id: "",
   modelo: "",
   anio: "",
@@ -10,7 +11,7 @@ const initialForm = {
   precio: "",
   vendedor_id: "",
   disponible: true,
-  categorias: [], // lista de IDs numéricos
+  categorias: [], 
 };
 
 const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
@@ -18,7 +19,6 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
 
   useEffect(() => {
     if (vehiculoEdit) {
-      // Al cargar un vehículo para editar, asegurarse que categorías sean array de números
       setForm({
         ...vehiculoEdit,
         categorias:
@@ -37,7 +37,6 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "categorias") {
-      // Convertir input string "1,2,3" a array de números
       const cats = value
         .split(",")
         .map((id) => Number(id.trim()))
@@ -55,7 +54,6 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validar campos obligatorios
     if (
       !form.marca_id ||
       !form.modelo ||
@@ -67,14 +65,13 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
       return;
     }
 
-    // Armar objeto para enviar
     const dataToSend = {
       marca_id: Number(form.marca_id),
       modelo: form.modelo,
       anio: Number(form.anio),
       tipo: form.tipo || null,
       descripcion: form.descripcion || null,
-      precio: form.precio.toString(), // enviar string para Decimal
+      precio: form.precio.toString(), 
       vendedor_id: Number(form.vendedor_id),
       disponible: Boolean(form.disponible),
       categorias: form.categorias || [],
@@ -92,7 +89,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-md rounded-xl p-6 max-w-md mx-auto mt-6 space-y-4"
+      className={styles.input}
     >
       <h2 className="text-xl font-semibold">
         {vehiculoEdit ? "Editar Vehículo" : "Registrar Vehículo"}
@@ -105,7 +102,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         onChange={handleChange}
         placeholder="Marca ID *"
         required
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -114,7 +111,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         onChange={handleChange}
         placeholder="Modelo *"
         required
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -124,7 +121,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         onChange={handleChange}
         placeholder="Año *"
         required
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -132,7 +129,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         value={form.tipo}
         onChange={handleChange}
         placeholder="Tipo"
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <textarea
@@ -140,7 +137,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         value={form.descripcion}
         onChange={handleChange}
         placeholder="Descripción"
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -150,7 +147,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         onChange={handleChange}
         placeholder="Precio * (ej: 28000.00)"
         required
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -160,7 +157,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         onChange={handleChange}
         placeholder="Vendedor ID *"
         required
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <input
@@ -169,7 +166,7 @@ const VehiculoForm = ({ onSubmit, vehiculoEdit, clearEdit }) => {
         value={form.categorias.join(",")}
         onChange={handleChange}
         placeholder="IDs de categorías, separados por coma"
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={styles.input}
       />
 
       <label className="inline-flex items-center space-x-2">
